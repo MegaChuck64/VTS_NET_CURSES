@@ -83,28 +83,86 @@ public static class Terminal
         //https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
         if (!h.IsInvalid)
         {
-            PrintF(hOut, "\x1b[31mThis text has a red foreground using SGR.31.\r\n");
-            PrintF(hOut, "\x1b[1mThis text has a bright (bold) red foreground using SGR.1 to affect the previous color setting.\r\n");
-            PrintF(hOut, "\x1b[mThis text has returned to default colors using SGR.0 implicitly.\r\n");
-            PrintF(hOut, "\x1b[34;46mThis text shows the foreground and background change at the same time.\r\n");
-            PrintF(hOut, "\x1b[0mThis text has returned to default colors using SGR.0 explicitly.\r\n");
-            PrintF(hOut, "\x1b[31;32;33;34;35;36;101;102;103;104;105;106;107mThis text attempts to apply many colors in the same command. Note the colors are applied from left to right so only the right-most option of foreground cyan (SGR.36) and background bright white (SGR.107) is effective.\r\n");
-            PrintF(hOut, "\x1b[39mThis text has restored the foreground color only.\r\n");
-            PrintF(hOut, "\x1b[49mThis text has restored the background color only.\r\n");
+            Print(
+                "This text has a red foreground and bright white background", 
+                TerminalColor.BrightBackgroundWhite, TerminalColor.ForegroundRed);
+
+
+            Print(
+                "This text has a red foreground and white background",
+                TerminalColor.BackgroundWhite, TerminalColor.ForegroundRed);
         }
 
     }
 
 
-    public static void PrintF(IntPtr hOut, string msg)
+    public static void Print(string msg, params TerminalColor[] color)
     {
-        bool goodWrite = WriteConsole(hOut, msg, (uint)msg.Length, out uint cchwritten, 0);
+        IntPtr hOut = GetStdHandle(StdHandle.OutputHandle);
+        var cols = string.Empty;
+        foreach (var col in color)
+        {
+            cols += ((int)col).ToString() + ";";
+        }
+        cols = cols.TrimEnd(';');
+        cols += 'm';
+        var line = "\x1b[" + cols + msg + "\r\n";
+        bool goodWrite = WriteConsole(hOut, line, (uint)line.Length, out uint cchwritten, 0);
 
         if (!goodWrite)
         {
             var lastError = Marshal.GetLastWin32Error();
             System.Diagnostics.Debug.WriteLine($"Error drawing fast console output: \t{lastError}");
         }
-
+        
     }
+
 }
+
+public enum TerminalColor
+{
+    Default = 0,
+    Bright = 1,
+    NoBright = 22,
+    Underline = 4,
+    NoUnderline = 24,
+    Negative = 7,
+    Positive = 27,
+    ForegroundBlack = 30,
+    ForegroundRed = 31,
+    ForegroundGreen = 32,
+    ForegroundYellow = 33,
+    ForegroundBlue = 34,
+    ForegroundMagenta = 35,
+    ForegroundCyan = 36,
+    ForegroundWhite = 37,
+    ForegroundExtended = 38,
+    ForegroundDefault = 39,
+    BackgroundBlack = 40,
+    BackgroundRed = 41,
+    BackgroundGreen = 42,
+    BackgroundYellow = 43,
+    BackgroundBlue = 44,
+    BackgroundMagenta = 45,
+    BackgroundCyan = 46,
+    BackgroundWhite = 47,
+    BackgroundExtended = 48,
+    BackgroundDefault = 49,
+    BrightForegroundBlack = 90,
+    BrightForegroundRed = 91,
+    BrightForegroundGreen = 92,
+    BrightForegroundYellow = 93,
+    BrightForegroundBlue = 94,
+    BrightForegroundMagenta = 95,
+    BrightForegroundCyan = 96,
+    BrightForegroundWhite = 97,
+    BrightBackgroundBlack = 100,
+    BrightBackgroundRed = 101,
+    BrightBackgroundGreen = 102,
+    BrightBackgroundYellow = 103,
+    BrightBackgroundBlue = 104,
+    BrightBackgroundMagenta = 105,
+    BrightBackgroundCyan = 106,
+    BrightBackgroundWhite = 107
+}
+
