@@ -62,9 +62,6 @@ public static class Terminal
 
 
 
-    /// <summary>
-    /// GRAPHICS TEST (prints grid of A - Z in every console color on keypress)
-    /// </summary>
     public static void Test()
     {
         SafeFileHandle h = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
