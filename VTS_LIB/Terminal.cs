@@ -76,26 +76,28 @@ public static class Terminal
                 SetConsoleMode(hOut, mode);
             }
         }
-
+        
+        
         //https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
         if (!h.IsInvalid)
         {
             Print(
                 "This text has a red foreground and bright white background", 
+                hOut,
                 TerminalColor.BrightBackgroundWhite, TerminalColor.ForegroundRed);
 
 
             Print(
                 "This text has a red foreground and white background",
+                hOut,
                 TerminalColor.BackgroundWhite, TerminalColor.ForegroundRed);
         }
 
     }
 
 
-    public static void Print(string msg, params TerminalColor[] color)
-    {
-        IntPtr hOut = GetStdHandle(StdHandle.OutputHandle);
+    public static void Print(string msg, IntPtr hOut, params TerminalColor[] color)
+    {        
         var cols = string.Empty;
         foreach (var col in color)
         {
